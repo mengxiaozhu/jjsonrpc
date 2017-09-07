@@ -13,7 +13,7 @@ public class DefaultRegistry implements Registry, FunctionFactory {
     }
 
     @Override
-    public void registMethods(Object object) {
+    public void registerMethods(Object object) {
         Method[] methods = object.getClass().getDeclaredMethods();
         for (Method method : methods) {
             if (method.isAccessible()) {
@@ -23,12 +23,12 @@ public class DefaultRegistry implements Registry, FunctionFactory {
     }
 
     @Override
-    public void registMethod(String name, Object object, String method) throws NoSuchMethodException {
+    public void registerMethod(String name, Object object, String method) throws NoSuchMethodException {
         this.store.put(name, new Function(object.getClass().getDeclaredMethod(method), object));
     }
 
     @Override
-    public void registService(String name, Object object) {
+    public void registerService(String name, Object object) {
         Method[] methods = object.getClass().getDeclaredMethods();
         for (Method method : methods) {
             if (Modifier.isPublic(method.getModifiers())) {

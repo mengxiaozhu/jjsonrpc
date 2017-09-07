@@ -1,9 +1,9 @@
 package cn.mengxiaozhu.jsonrpc;
 
 public interface Registry {
-    void registMethods(Object object);
+    void registerMethods(Object object);
 
-    void registMethod(String name, Object object, String method) throws NoSuchMethodException;
+    void registerMethod(String name, Object object, String method) throws NoSuchMethodException;
 
-    void registService(String name, Object object);
+    void registerService(String name, Object object);
 }

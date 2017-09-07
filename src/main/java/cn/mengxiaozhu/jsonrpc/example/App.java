@@ -98,7 +98,7 @@ public class App {
     public static void main(String[] args) {
         StreamServer server = new StreamServer(8099, 100);
         Config config = server.getConfig();
-        config.registService("fun", new Fun());
+        config.registerService("fun", new Fun());
         try {
             server.run();
         } catch (Exception e) {

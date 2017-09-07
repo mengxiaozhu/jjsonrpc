@@ -35,18 +35,18 @@ public class Config implements Registry {
 
 
     @Override
-    public void registMethods(Object object) {
-        this.registry.registMethods(object);
+    public void registerMethods(Object object) {
+        this.registry.registerMethods(object);
     }
 
     @Override
-    public void registMethod(String name, Object object, String method) throws NoSuchMethodException {
-        this.registry.registMethod( name,  object,  method);
+    public void registerMethod(String name, Object object, String method) throws NoSuchMethodException {
+        this.registry.registerMethod( name,  object,  method);
     }
 
     @Override
-    public void registService(String name, Object object) {
-        this.registry.registService(name,object);
+    public void registerService(String name, Object object) {
+        this.registry.registerService(name,object);
     }
 
     public void setRegistry(Registry registry) {
