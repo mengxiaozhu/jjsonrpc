@@ -65,7 +65,7 @@ public class DefaultRegistry implements Registry, FunctionFactory {
             String realName = temp.getAnnotation(RegistryName.class).value();
             if (method.equals(realName)) {
                 map.put("" + temp.getParameterCount(), new Function(temp, object));
-                realNameArr[0] = realName;
+                realNameArr[0] = temp.getName();
             }
         });
         ConcurrentHashMap<String, Function> funMap = null;
