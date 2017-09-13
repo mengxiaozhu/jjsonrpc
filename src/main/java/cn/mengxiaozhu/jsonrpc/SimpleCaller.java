@@ -15,7 +15,7 @@ public class SimpleCaller implements Caller {
 
     @Override
     public Object call(String name, JsonArray params) throws Exception {
-        Function function = functionFactory.getByParamsLength(name,params.size()+"");
+        Function function = functionFactory.get(name,params.size());
         if (function == null) {
             throw new NoSuchRPCMethodException(name);
         }
