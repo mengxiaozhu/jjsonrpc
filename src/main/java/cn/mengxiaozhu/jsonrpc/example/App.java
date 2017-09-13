@@ -1,7 +1,8 @@
 package cn.mengxiaozhu.jsonrpc.example;
 
-import cn.mengxiaozhu.jsonrpc.Config;
-import cn.mengxiaozhu.jsonrpc.StreamServer;
+import cn.mengxiaozhu.jsonrpc.*;
+import cn.mengxiaozhu.jsonrpc.annotation.Register;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -93,11 +94,30 @@ public class App {
             a.code = 101;
             return a;
         }
+        @Register(value = "login")
+        public Example echo(Example a,int code){
+            a.code = code;
+            return a;
+        }
     }
 
     public static void main(String[] args) {
-        StreamServer server = new StreamServer(8099, 100);
-        Config config = server.getConfig();
+        Config config = new Config();
+        config.setPort(8099);
+
+        Gson gson = new Gson();
+        config.setGson(gson);
+
+        DefaultRegistry registry = new DefaultRegistry();
+        config.setRegistry(registry);
+
+        SimpleCaller caller = new SimpleCaller(registry, gson);
+
+        config.setDispatcher(new PooledDispatcher(100, caller));
+
+        StreamServer server = new StreamServer(config);
+        //StreamServer server = new StreamServer(8099, 100);
+        //Config config = server.getConfig();
         config.registerService("fun", new Fun());
         try {
             server.run();
