@@ -10,7 +10,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultRegistry implements cn.mengxiaozhu.jsonrpc.Registry, FunctionFactory {
+public class DefaultRegistry implements Registry, FunctionFactory {
     private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, Function>> store = new ConcurrentHashMap<>();
 
     @Override
