@@ -2,7 +2,7 @@ package cn.mengxiaozhu.jsonrpc;
 
 
 import cn.mengxiaozhu.jsonrpc.annotation.Ignore;
-import cn.mengxiaozhu.jsonrpc.annotation.Aliases;
+import cn.mengxiaozhu.jsonrpc.annotation.Register;
 import cn.mengxiaozhu.jsonrpc.exceptions.MethodNameConflictException;
 
 import java.lang.reflect.Method;
@@ -10,7 +10,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultRegistry implements Registry, FunctionFactory {
+public class DefaultRegistry implements cn.mengxiaozhu.jsonrpc.Registry, FunctionFactory {
     private final ConcurrentHashMap<String, ConcurrentHashMap<Integer, Function>> store = new ConcurrentHashMap<>();
 
     @Override
@@ -19,7 +19,7 @@ public class DefaultRegistry implements Registry, FunctionFactory {
         if (meathodMap != null) {
             List<Function> list = new ArrayList<>();
             list.addAll(meathodMap.values());
-            if(list.size()>0){
+            if (list.size() > 0) {
                 return list.get(0);
             }
         }
@@ -41,46 +41,36 @@ public class DefaultRegistry implements Registry, FunctionFactory {
         ConcurrentHashMap<Integer, Function> funMap = null;
         for (Method method : methods) {
             if (method.getAnnotation(Ignore.class) != null) {
-                return;
+                continue;
             }
             if (method.isAccessible()) {
-                if (this.store.get(method.getName()) == null) {
+                Register register = method.getAnnotation(Register.class);
+                String methodName = method.getName();
+                if(register!=null){
+                    methodName = register.value();
+                }
+                if (this.store.get(methodName) == null) {
                     funMap = new ConcurrentHashMap<>();
                 } else {
-                    funMap = this.store.get(method.getName());
+                    funMap = this.store.get(methodName);
                 }
                 funMap.put(method.getParameterCount(), new Function(method, object));
-                this.store.put(method.getName(), funMap);
+                this.store.put(methodName, funMap);
             }
         }
     }
 
     @Override
     public void registerMethod(String name, Object object, String method) throws NoSuchMethodException {
+        ConcurrentHashMap<Integer, Function> funMap = new ConcurrentHashMap<>();
+
         Map<Integer, Function> map = new HashMap<>();
-        Method[] methods = object.getClass().getDeclaredMethods();
-        String[] realNameArr = new String[1];
-        Arrays.asList(methods).forEach((Method temp) -> {
-            String realName = temp.getAnnotation(Aliases.class).value();
-            if (method.equals(realName)) {
-                map.put(temp.getParameterCount(), new Function(temp, object));
-                realNameArr[0] = temp.getName();
-            }
-        });
-        ConcurrentHashMap<Integer, Function> funMap = null;
-        if (realNameArr[0] != null && realNameArr[0].length() > 0) {
-            if (this.store.get(realNameArr[0]) == null) {
-                funMap = new ConcurrentHashMap<>();
-            } else {
-                funMap = this.store.get(realNameArr[0]);
-            }
-
-        } else {
-            throw new NoSuchMethodException();
-        }
-
+        Method method1 = object.getClass().getDeclaredMethod(method);
+        int paramsLength = method1.getParameterCount();
+        map.put(paramsLength, new Function(method1, object));
         funMap.putAll(map);
-        this.store.put(name + "." + realNameArr[0], funMap);
+
+        this.store.put(name, funMap);
     }
 
     @Override
@@ -94,17 +84,27 @@ public class DefaultRegistry implements Registry, FunctionFactory {
             if (Modifier.isPublic(method.getModifiers())) {
                 String methodName = method.getName();
 
-                if (this.store.get(name + "." + methodName) == null) {
+                Register register = method.getAnnotation(Register.class);
+                StringBuffer keyBuffer = new StringBuffer();
+
+                if(register!=null){
+                    methodName = register.value();
+                    keyBuffer.append(methodName);
+                }else{
+                    keyBuffer.append(name).append(".").append(methodName);
+                }
+                methodName = keyBuffer.toString();
+                if (this.store.get(methodName) == null) {
                     funMap = new ConcurrentHashMap<>();
                 } else {
-                    funMap = this.store.get(name + "." + methodName);
-                    if (funMap.get(method.getParameterCount() + "") != null) {
+                    funMap = this.store.get(methodName);
+                    if (funMap.get(method.getParameterCount()) != null) {
                         throw new MethodNameConflictException("Registry failed");
                     }
                 }
 
                 funMap.put(method.getParameterCount(), new Function(method, object));
-                this.store.put(name + "." + method.getName(), funMap);
+                this.store.put(methodName, funMap);
             }
         }
     }

@@ -1,7 +1,7 @@
 package cn.mengxiaozhu.jsonrpc.example;
 
 import cn.mengxiaozhu.jsonrpc.*;
-import cn.mengxiaozhu.jsonrpc.annotation.Aliases;
+import cn.mengxiaozhu.jsonrpc.annotation.Register;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -94,7 +94,7 @@ public class App {
             a.code = 101;
             return a;
         }
-        @Aliases(value = "login")
+        @Register(value = "login")
         public Example echo(Example a,int code){
             a.code = code;
             return a;
